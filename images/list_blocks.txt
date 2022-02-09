@@ -1,6 +1,0 @@
-BefNr.dwg
-Fund.dwg
-NivPunkt.dwg
-NumPunkt.dwg
-Profilname.dwg
-ProfilNr.dwg
