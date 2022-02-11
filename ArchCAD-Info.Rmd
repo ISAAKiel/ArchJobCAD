@@ -53,7 +53,8 @@ Anmerkung: AutoCAD ist für Windows entwickelt und AutoLISP nutzt entsprechend k
 Im Rahmen einer Übung wurde der lange nicht veränderte Code überarbeitet. Die Neuerungen sind:
 
 - Alle Blöcke besitzen nun drei Attribute (Nummer, Erstelldatum, Layername). Für Erstelldatum und Layername werden Systemvariablen als Vorgabewerte genutzt. 
-- Prüfung von Befund- und Fundnummern bei der Eingabe auf Dubletten. Dafür wird eine Liste geführt die mit dem Befehl ```Attributliste \<Blockname>``` abgerufen und neu geschrieben werden kann. 
+- Prüfung von Befund- und Fundnummern bei der Eingabe auf Dubletten. Dafür wird eine Liste geführt, die mit dem Befehl ```Attributliste \<Blockname>``` abgerufen und neu geschrieben werden kann.
+- Mit ```maxBNR``` und ```maxFUN``` können die größte Befundnummer oder die größte Fundnummer zu einem Befund abgefragt werden. Die Rückgabe erfolgt in der Kommandozeile. Die Funktionen setzten die Verwendung von Zahlen für die Befund- und Fundnummern voraus. 
 - Befund- und Fundnummern werden nur als Block eingefügt. Ein zusätzlicher Text für die freie Positionierung in der Zeichnung wird nicht mehr eingefügt. Damit entfallen die Vordefinierten Textstile mit Beschriftungsmaßstab.
 - Mit "NUM" wird ein nummerierter Punkt (Block NumPunkt) eingefügt (z.B. Photogrammetrie). 
 - Importierte Blöcke (wblock) werden auf die AutoCAD-Version geprüft (Kompatibilität).
@@ -63,11 +64,11 @@ Im Rahmen einer Übung wurde der lange nicht veränderte Code überarbeitet. Die
 Dieser Text beschreibt ein Verfahren, um folgende Arbeitsschritte einer Ausgrabung in AutoCAD automatisiert auszuführen:
 
 - Eine Befundnummer automatisch gezählt eintragen und mit einer Mittelpunktkoordinate des Befundes exportieren. Die Befundnummer wird auf Dubletten geprüft.
-- Einzelfundeinmessung mit fortlaufender Fundzählung je Befundnummer und Koordinatenexport. Die Fundnummer wird auf Dubletten geprüft.
-- Das Einmessen und automatische Beschriftung von Profilnägeln je Befund sowie Zeichnen der Profillinie.  Export der Profilnägel als Koordinatenliste.
+- Einzelfundmessung mit fortlaufender Fundzählung je Befundnummer und Koordinatenexport. Die Fundnummer wird auf Dubletten geprüft.
+- Das Messen und automatische Beschriftung von Profilnägeln je Befund sowie Zeichnen der Profillinie.  Export der Profilnägel als Koordinatenliste.
 - Eintragen von Niv.-Werten über einem Dreieck und Listenexport mit Koordinaten.
-- Ein fortlaufend gezälte Nummer (NumPunkt) und Export  mit den Koordinaten.
-- Ein Textblock mit den Koordinaten den zuerst markierten Punktes.
+- Ein fortlaufend gezählte Nummer (NumPunkt) und Export  mit den Koordinaten.
+- Ein Textblock mit den Koordinaten des zuerst markierten Punktes.
 - Alle Objekte werden automatisch auf die entsprechenden Layer gelegt (z. B. SN01PL01_BefundNr). Wenn der erwartete Layer nicht existiert werden die Objekte auf dem aktuellen Layer angelegt.
 
 ![Plan mit dokumentierten Befunden, Profilen, Befund- und Fundnummern.](./images/acad-archcad-applied.png)
@@ -94,12 +95,12 @@ Die Befehle greifen auf Blöcke mit Attribut zu, diese befinden sich im Ordner .
 
 Laden Sie das Programm ArchCAD.lsp mit dem Befehl ```appload```.  Wiederholen Sie dies nach jedem Programmstart oder fügen Sie das Programm mit "Inhalt…" der Startgruppe zu.
 
-- \<Enter> wiederholt den letzten Befehl. Einige der folgenden Routinen zählen automatisch, Sie können diese also fortwährend „abentern“.
+- \<Enter> wiederholt den letzten Befehl. Einige der folgenden Routinen zählen automatisch, Sie können diese also fortwährend „ab-entern“.
 - Aus diesem Grund wird mit ArchCAD auch das Attributfenster für das Erfassen der Blockattribute deaktiviert: ```_attdia <0>/<1>```. 
 -  	Mit \<F2> wird die Befehlszeile in einem eigenen Fenster geöffnet, die letzten Zeilen informieren über die Tastaturbefehle zum Starten der Routinen.
 
 
-## Befundnummer einmessen 
+## Befundnummer messen 
 
 **bnr**
 
@@ -111,20 +112,20 @@ Der Befehle ```_attdisp``` steuert die Sichtbarkeit der Attribute. Mit "**E**in"
 
 Anmerkung: Bei der späteren Verwendung in einem GIS können der Block und die Plygonlinie über eine räumliche Abfrage verbunden werden (```within(geom1, geom2)``` oder ```touches(geom1, geom2)```) [SpatiaLite Funktionen](http://www.gaia-gis.it/gaia-sins/spatialite-sql-latest.html#p12). 
 
-## Profil einmessen 
+## Profil messen 
 
 **prl**
 
-Zeichnen bzw. messen Sie nun das Profil zum Befund ein mit ```prl```. Die zuletzt verwendete Befundnummer wird automatisch vorgegeben und kann mit \<Enter> bestätigt werden. Der folgenden Nagelnummern werden mit "1" beginnend automatisch gezählt und müssen dann eingemessen werden. Die Zählung kann  jedes mal verändert werden. Die Farbe der Objekte weist auf die Lage der einzelnen Objekte auf den entsprechenden Layern hin.
+Zeichnen bzw. messen Sie nun das Profil zum Befund ein mit ```prl```. Die zuletzt verwendete Befundnummer wird automatisch vorgegeben und kann mit \<Enter> bestätigt werden. Der folgenden Nagelnummern werden mit "1" beginnend automatisch gezählt und müssen dann gemessen werden. Die Zählung kann  jedes Mal verändert werden. Die Farbe der Objekte weist auf die Lage der einzelnen Objekte auf den entsprechenden Layern hin.
 
 - Weitere Profilnägel werden fortlaufen nummeriert. In dieser Version beginnt die Zählung der Nägel bei jeder neuen Befundnummer wieder mit "1".
 - Einen einzelnen Profilnagel messen Sie mir ```prn``` ein.
 
-## Funde einmessen 
+## Funde messen 
 
 **fun**
 
-Um Funde einzumessen geben Sie bitte ```fun``` ein. Die zuletzt verwendete Befundnummer wird automatisch vorgeschlagen und kann mit \<Enter> bestätigt werden. Nachfolgend werden die Fundnummern gezählt. Die Fundnummer kann jedes mal geändert werden. In dieser Version beginnt die Zählung der Fundnummer bei jeder neu eingegebenen Befundnummer mit "1".
+Um Funde zu messen geben Sie bitte ```fun``` ein. Die zuletzt verwendete Befundnummer wird automatisch vorgeschlagen und kann mit \<Enter> bestätigt werden. Nachfolgend werden die Fundnummern gezählt. Die Fundnummer kann jedes Mal geändert werden. In dieser Version beginnt die Zählung der Fundnummer bei jeder neu eingegebenen Befundnummer mit "1".
 
 - Die eingegebene Fundnummer ("\<Bef-Nr>-1") wird auf Dubletten in der aktiven Zeichnung geprüft und ggf. eine Warnung ergänzt mit Messdatum und Layer ausgegeben.
 - Digitalisieren oder messen Sie Funde für maximale Effizienz möglichst fortlaufend. 
@@ -141,7 +142,7 @@ Messen Sie den Nivpunkt oder fangen Sie einen Punkt in der Zeichnung, der z-Wert
 
 **num**
 
-Der nummerierte Punkt ist vor allerm für Messbildentzerrung gedacht und als 3D-Würfel gestaltet. Entsprechend erfolgt die Zählung für jeden Befund ("\<Bef-Nr>/1") und startet nach der Eingabe einer neuen Befundnummer wieder mit "1".
+Der nummerierte Punkt ist vor allem für Messbildentzerrung gedacht und als 3D-Würfel gestaltet. Entsprechend erfolgt die Zählung für jeden Befund ("\<Bef-Nr>/1") und startet nach der Eingabe einer neuen Befundnummer wieder mit "1".
 
 - Die eingegebene Nummer ("\<Bef-Nr>/1") wird auf Dubletten in der aktiven Zeichnung geprüft und ggf. eine Warnung ergänzt mit Messdatum und Layer ausgegeben.
 
@@ -149,13 +150,13 @@ Der nummerierte Punkt ist vor allerm für Messbildentzerrung gedacht und als 3D-
 
 **kbm**
 
-Koordinatenbemaßung ist in AutoCAD implementiert, hier wird aber der Bezug zum BKS-Ursprung hergestellt, wodurch bei ```Zoom``` ```Grenzen``` auch auf den Ursprung gezoomt wird. Zudem wird nur jeweils die x- oder die y-Koordinate eingefügt. Die Funktion ```kbm``` greift die Koordinaten des übergebenen Punktes ab und fügt einen MText mit den Koordinaten "x: nn.nn; y: nn.nn; z: nn.nn" ein. Hierbei wir der jeweils aktive Textstil verwendet. Die Textgröße richtet sich nach der ersten aufgezogenen Textbox oder kann jedesmal neu bestimmt werden.
+Koordinatenbemaßung ist in AutoCAD implementiert, hier wird aber der Bezug zum BKS-Ursprung hergestellt, wodurch bei ```Zoom``` ```Grenzen``` auch auf den Ursprung gezoomt wird. Zudem wird nur jeweils die x- oder die y-Koordinate eingefügt. Die Funktion ```kbm``` greift die Koordinaten des übergebenen Punktes ab und fügt einen MText mit den Koordinaten "x: nn.nn; y: nn.nn; z: nn.nn" ein. Hierbei wir der jeweils aktive Textstil verwendet. Die Textgröße richtet sich nach der ersten aufgezogenen Textbox oder kann jedes Mal neu bestimmt werden.
 
 ## Attributliste
 
 **Attributliste** \<Blockname>
 
-In der aktuellen Version werden Befundnummern ("1"), Fundnummern ("1-1") und nummerierter Punkt (NumPunkt "1/1") auf Dubletten in der aktiven Zeichnung geprüft und ggf. eine Fehlermeldung ausgegeben. Dafür wird eine Liste dieser Nummern geführt, die mit ``Àttributliste``` aktiv abgerufen und regeniert werden kann wenn Blöcke aus der Zeichnung gelöscht wurden. Für die Blöcke sehen die Listen wie folgt aus.
+In der aktuellen Version werden Befundnummern ("1"), Fundnummern ("1-1") und nummerierter Punkt (NumPunkt "1/1") auf Dubletten in der aktiven Zeichnung geprüft und ggf. eine Fehlermeldung ausgegeben. Dafür wird eine Liste dieser Nummern geführt, die mit ``Àttributliste``` aktiv abgerufen und regeneriert werden kann wenn Blöcke aus der Zeichnung gelöscht wurden. Für die Blöcke sehen die Listen wie folgt aus.
 
 | Block | Format | Beispiel |
 |:------|:-----------------:|:------------------------------|
@@ -180,7 +181,7 @@ Mit dem Befehl ```datenextrakt``` starten Sie die Extraktion. Die folgenden Schr
 Der Code gliedert sich in vier Hauptabschnitte: 
 
 - Definition allgemeiner Variablen, diese können nach Bedarf zusammen mit den Blöcken und der Funktion Layererstellen.lsp angepasst werden (Name der Layer, Name der Blöcke mit Attribut, Textstile).
-- Lokale Funktionen für diverse wiederholt benötigte Aufgaben.
+- Lokale Funktionen für diverse, wiederholt benötigte Aufgaben.
 - Die neuen Befehle als lokale Funktionen.
 - Die Zuweisung der lokalen Funktionen an die globalen, in AutoCAD aufrufbaren Befehle.
 
@@ -196,7 +197,7 @@ Der Code ist auf Englisch weitgehend kommentiert und damit nachvollziehbar. Für
   	   (strcat "\nBefund-Nr. eingeben <" (add2Text 1 BefNr) ">:")))
 ```
 
-Nach dem Funktionsnamen und den internen Variablen wird ab der zweiten Zeile der Variablen für die optionale nächste Befundnummer (BefNr_opt) ein Wert zugewiesen. Von Innen nach Außen in einzelnen Schritten:
+Nach dem Funktionsnamen und den internen Variablen wird ab der zweiten Zeile der Variablen für die optionale nächste Befundnummer (BefNr_opt) ein Wert zugewiesen. Von Innen nach Aussen in einzelnen Schritten:
 
 ```(add2Text 1 BefNr)```
 

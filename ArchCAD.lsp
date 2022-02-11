@@ -82,6 +82,19 @@
   attributelist
 )
 
+; Extract number attribute of attributelist
+; Returns a list
+(defun getNumbers (attributelist / )
+  (setq i 0 iter 3)
+  (setq ll (length attributelist))
+  (setq Numbers '())
+  (while (< i (+ ll))
+    (setq Numbers (append Numbers (list (nth i attributelist))))
+    (setq i (+ i iter))
+  )
+  Numbers
+)
+
 ; Search string in another, returns the position.
 ; (source: http://www.autolisp.mapcar.net/strings2.html)
 (defun str-pos (str c / i l ls lc)
@@ -582,6 +595,39 @@
   (setq blockname (getstring (strcat "\nBlockname eingeben :")))
   (set (read(strcat blockname "liste"))  (get-blockattributes blockname))
 )
+
+;;;==========================================
+;;; get the max. (last) feature number
+;;===========================================
+(defun getMaxBefNr ( / Number Numbers NumbersInt)
+  (if (= Befundliste nil)
+    (exit))
+  (setq Numbers (getNumbers Befundliste))
+  (setq NumbersInt '())
+  (foreach Number Numbers 
+    (setq NumbersInt (append NumbersInt (list (atoi Number)))))
+  (car (vl-sort NumbersInt '>))
+)
+
+;;;==========================================
+;;; get the max. (last) find number of a feature
+;;===========================================
+(defun getMaxFindNr ( / )
+  (if (= Fundliste nil)
+    (exit))
+  (setq Numbers (getNumbers Fundliste))
+  (setq BefNr (getstring "\Bitte Befund-Nr angeben:"))
+  (setq bl (strlen BefNr))
+  (setq Finds '())
+  (foreach Number Numbers
+    (if (= BefNr (substr Number 1 bl))
+      (setq Finds (append (list (atoi (substr Number (+ bl 2))))))
+      )
+  )  
+  (car (vl-sort Finds '>))
+)
+
+
 ;;;================================================
 ;;; Set the global commands to be called in AutoCAD
 ;;;================================================
@@ -593,5 +639,7 @@
 (defun c:NPT () (NivPunkt))
 (defun c:KBM () (KoordBem))
 (defun c:NUM () (NummerPunkt))
-(defun c:Attributliste () (RegenAttriblist)) 
+(defun c:Attributliste () (RegenAttriblist))
+(defun c:MaxBNR () (getMaxBefNr))
+(defun c:MaxFUN () (getMaxFindNr))
 (princ "\nBNR fuer Bef.-Nr., PRL fuer Profillinie, PRN fuer Profilnagel, FUN fuer Fund-Nr., NPT fuer Niv-Punkt, NUM fuer Nummerierter Punkt \nKBM fuer x- y- z-Koordinaten, Attributliste fuer eine Liste der Attribute zu einem Block.")
